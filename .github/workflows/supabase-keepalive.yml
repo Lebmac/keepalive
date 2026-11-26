@@ -1,0 +1,33 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    # Every day at 03:17 UTC
+    - cron: "17 3 * * *"
+
+  # Allows manual testing from the GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Keep DevSys alive
+        shell: bash
+        env:
+          SUPABASE_API_URL: ${{ secrets.DEVSYS_API_URL }}
+          SUPABASE_KEY: ${{ secrets.DEVSYS_PUBLISHABLE_KEY }}
+        run: |
+          set -e
+
+          echo "Querying DevSys..."
+
+          curl --fail-with-body \
+            --silent \
+            --show-error \
+            --header "apikey: $SUPABASE_KEY" \
+            "${SUPABASE_API_URL}keepalive?select=id&limit=1"
+
+          echo
+          echo "DevSys keepalive successful."
